@@ -35,11 +35,449 @@ import fetch from "isomorphic-fetch"
 
 import DOM from 'react-dom'
 import React, {Component} from 'react'
+import Backbone from 'bbfire'
+import Firebase from 'firebase'
+
+
+
+var UserModel = Backbone.Firebase.Model.extend({
+    initialize: function(uid) {
+        this.url = `http://pictureperfect.firebaseio.com/users/${uid}`
+    }
+})
+
+var UserPersonalRequests = Backbone.Firebase.Collection.extend({
+    initialize: function(uid) {
+        this.url = `http://pictureperfect.firebaseio.com/users/${uid}/requests`
+    }
+})
+
+var AllRequests = Backbone.Firebase.Collection.extend({
+    initialize: function() {
+        this.url = `http://pictureperfect.firebaseio.com/allRequests/`
+    }
+})
+
+var SplashPage = React.createClass({
+    email: '',
+    password: '',
+    realName: '',
+
+    _handleSignUp: function() {
+        this.props.createUser(this.email,this.password,this.realName)
+    },
+
+    _handleLogIn: function() {
+        this.props.logUserIn(this.email,this.password)
+    },
+
+    _updateEmail: function(event) {
+        this.email = event.target.value
+    },
+
+    _updateName: function(event) {
+        this.realName = event.target.value
+    },
+
+    _updatePassword: function(event) {
+        this.password = event.target.value
+    },
+
+    render: function() {
+        return (
+            <div className="loginContainer">
+                <Header />
+                <input placeholder="enter your user name" onChange={this._updateEmail} />
+                <input placeholder="enter your password" onChange={this._updatePassword} type="password" />
+                <input placeholder="enter your real name" onChange={this._updateName} />
+                <div className="splashButtons" >
+                    <button onClick={this._handleSignUp} >sign up</button>
+                    <button onClick={this._handleLogIn} >log in</button>
+                </div>
+            </div>
+            )
+    }
+})
+
+var DashView = React.createClass ({
+    
+    render:function(){
+        window.initMap = function(){
+
+
+
+            var success= function(pos) {
+                    var crd = pos.coords;
+                    var myLatLng = {lat:crd.latitude, lng: crd.longitude}
+
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        center: myLatLng,
+                        zoom: 18
+                    });
+
+                    var contentString = 
+                        '<div id="content">'+
+                            '<h5 id="firstHeading" class="firstHeading">Current Position</h5>'+
+                            '<div id="bodyContent">'+
+                                '<p>Click and drag your position to find where you want a picture taken</p>'+
+                                '<p>Latitude:'+crd.latitude+' <br>Longitude:'+crd.longitude+'</p>'
+                          '</div>'+
+                        '</div>';
+
+                      var infowindow = new google.maps.InfoWindow({
+                        content: contentString
+                      });
+
+
+                    var marker = new google.maps.Marker({
+                        position: myLatLng,
+                        map: map,
+                        title: 'Hello World!',
+                        draggable:true,
+                    });
+
+                    marker.addListener('click', function() {infowindow.open(map, marker);});
+            }
+        
+            
+
+            var error= function (err) {
+                console.warn('ERROR(' + err.code + '): ' + err.message);
+            };
+
+            navigator.geolocation.getCurrentPosition(success, error)
+        }
+           
+        return(
+
+
+            <div id='dashView'> 
+            <Header user={this.props.user}/>
+            <NavBar />
+            <div id='crucible'>
+            </div>
+            <div id="map">
+                
+            </div>
+            <a href="#logout" >log out</a>
+            </div>
+        )
+    }
+})
+
+var Header = React.createClass ({
+
+    render:function(){
+        return (
+        <div id='logo'>
+            <image src ='http://www.carfacbc.org/wp-content/uploads/2015/01/picture-perfect.png' type='png'/>
+
+        </div>
+        )
+    }
+})
+
+var NavBar = React.createClass ({
+
+    render:function(){
+
+        return (
+            <div id='navigation'>
+                <ul>
+                    <a href="#nearby">
+                        <li className="tabs">Requests Near Me</li>
+                    </a>
+                    <a href="#makeRequest">
+                        <li className="tabs">Make a New Request
+                        </li>
+                    </a>
+                    <a href="#pending">
+                        <li className="tabs">Pending Requests
+                        </li>
+                    </a>
+                    <a href="#images">
+                        <li className="tabs">Image Library
+                        </li>
+                    </a>
+
+                </ul>
+
+            </div>
+        )
+    }
+})
+
+var MakeRequestView = React.createClass ({
+    requestLocation: '',
+    descr: '',
+
+    _setRequestLatitude: function(e) {
+        this.requestLatitude = e.target.value
+    },
+
+    _setRequestLongitude: function(e) {
+        this.requestLongitude = e.target.value
+    },
+
+    _setDescr: function(e) {
+        this.descr = e.target.value
+    },
+
+    _submitRequest: function (){
+        var self = this
+        var location = {lat:self.requestLatitude, lng: self.requestLongitude}
+        var uid = this.props.user.get('id')
+        var request = new UserPersonalRequests(uid)
+        var allRequest = new AllRequests ()
+        
+        allRequest.create({
+            content:self.descr,
+            requestLocation:location,
+            requestor_email: ref.getAuth().password.email,
+            requestor_id: ref.getAuth().uid
+
+        })
+
+        request.create({
+            content:self.descr,
+            requestLocation:location,
+            requestor_email: ref.getAuth().password.email,
+            requestor_id: ref.getAuth().uid
+
+        })
+
+    },
+
+    render:function(){
+        
+        return (
+        <div id='makeRequest'>
+            <input placeholder='Location Latitude' onChange={this._setRequestLatitude} />
+            <input placeholder='Location Longitude' onChange={this._setRequestLongitude} />
+            <input id='descr' placeholder='What you need a picture of?' onChange={this._setDescr} />
+            <button onClick={this._submitRequest}>Submit</button>
+            
+        </div>
+        
+        )
+    }
+})
+
+var NearbyView = React.createClass ({
+    
+    componentWillMount: function() {
+        var self = this
+        this.props.allRequests.on('sync',function() {self.forceUpdate()})
+    },
+
+    _allRequestsComponents: function (requestObj,i){
+        return <Request requestData={requestObj} key={i}/>
+
+    },
+
+    render:function(){
+        
+        return (
+        <div id='nearbyView'>
+            <h1>Coming at you with the full list of available requests!
+            </h1>
+            {this.props.allRequests.map(this._allRequestsComponents)}
+            
+        </div>
+        
+        )
+    }
+})
+
+var Request = React.createClass ({
+
+
+
+    render:function(){
+        
+        return(
+            <div className='nearbyRequest'>
+                <p>User: {this.props.requestData.get('requestor_email')}
+                </p><br/>
+                <p>Latitude: {this.props.requestData.get('requestLocation').lat}</p><br/>
+                <p>Longitude: {this.props.requestData.get('requestLocation').lng} </p><br/>
+                <p>Picture Objective: {this.props.requestData.get('content')}
+                </p>
+            </div>
+        )
+
+    }
+})
+
+var PendingView = React.createClass ({
+
+    componentWillMount: function() {
+        var self = this
+        this.props.user.on('sync',function() {self.forceUpdate()})
+    },
+
+    _pendingRequestComponent:function(requestObj,i){
+        var newArray=[]
+        for(var prop in requestObj){
+            var desiredObj=requestObj[prop]
+            newArray.push(<UserRequests userRequestData={desiredObj} key={i} />)
+        }
+        return newArray
+
+        
+
+    },
+
+    render:function(){
+        console.log(this.props.user.get('requests'))
+        return (
+        <div id='pending'>
+            <h1>All the requests you are waiting for</h1>
+            {this._pendingRequestComponent(this.props.user.get('requests'))}
+              
+        </div>
+        )
+    }
+})
+
+var UserRequests = React.createClass ({
+    render:function(){
+  
+        return (
+            <div className='userRequests'>
+                <p>Latitude: {this.props.userRequestData.requestLocation.lat}</p><br/>
+                <p>Longitude: {this.props.userRequestData.requestLocation.lng} </p><br/>
+                <p>Picture Objective: {this.props.userRequestData.content}
+                </p><br/>
+            
+            </div>
+        )
+    }
+})
+
+var ImageView = React.createClass ({
+
+    render:function(){
+        return (
+        <div id='image'>
+            View your Images
+        </div>
+        )
+    }
+})
+
+
 
 function app() {
     // start app
     // new Router()
-    DOM.render(<p>test 2</p>, document.querySelector('.container'))
+    var PPRouter = Backbone.Router.extend({
+        routes: {
+            'splash': "showSplashPage",
+            'dash': "showDashboard",
+            'logout': "doLogOut",
+            'nearby': 'showNearbyRequests',
+            'makeRequest': 'showMakeRequests',
+            'pending': 'showPendingRequests',
+            'images': 'showImageLibrary'
+        },
+
+        initialize: function() {
+            this.ref = new Firebase('http://pictureperfect.firebaseio.com/')
+            window.ref = this.ref
+
+            this.on('route', function() {
+                if (!this.ref.getAuth()) {
+                    location.hash = "splash"
+                }
+            })
+        },
+
+        doLogOut: function() {
+            this.ref.unauth()
+            location.hash = "splash"
+        },
+
+        showSplashPage: function() {
+
+            DOM.render(<SplashPage logUserIn={this._logUserIn.bind(this)} createUser={this._createUser.bind(this)} />, document.querySelector('.container'))
+        },
+
+        showDashboard: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)
+        
+            DOM.render(<DashView user={user} />,document.querySelector('.container'))
+        },
+
+        showNearbyRequests: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)
+            var allRequests= new AllRequests()
+            allRequests.fetch()
+            DOM.render(<DashView  user={user} />,document.querySelector('.container'))
+            DOM.render(<NearbyView allRequests={allRequests} user={user} />,document.querySelector('#crucible'))
+        },
+
+        showMakeRequests: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)   
+            DOM.render(<DashView user={user} />,document.querySelector('.container'))
+            DOM.render(<MakeRequestView user={user} />,document.querySelector('#crucible'))
+        },
+
+        showPendingRequests: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)
+            DOM.render(<DashView user={user} />,document.querySelector('.container'))
+            DOM.render(<PendingView user={user} />,document.querySelector('#crucible'))
+        },
+
+        showImageLibrary: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)
+            DOM.render(<DashView user={user} />,document.querySelector('.container'))
+            DOM.render(<ImageView user={user} />,document.querySelector('#crucible'))
+        },
+
+        _logUserIn: function(email,password){
+        
+            this.ref.authWithPassword({
+                email: email,
+                password: password
+            }, function(err,authData) {
+                if (err) console.log(err)
+                else {
+                    location.hash = "dash"
+                   
+                }
+              }
+            )
+        },
+
+        _createUser: function(email,password,realName) {
+        
+            this.ref.createUser({
+                email: email,
+                password: password,
+            },function(error,authData) {
+                if (error) console.log(error)
+                else {
+                    var userMod = new UserModel(authData.uid)
+                    userMod.set({
+                    	name: realName,
+                    	email:email,
+                    	id:authData.uid
+                    })
+                       
+
+                }
+            })
+        }
+    })
+
+    var pr = new PPRouter()
+    Backbone.history.start()
 }
 
 app()
