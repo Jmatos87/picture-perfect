@@ -40,6 +40,7 @@ import Firebase from 'firebase'
 
 
 
+//Models and Collections------>
 var UserModel = Backbone.Firebase.Model.extend({
     initialize: function(uid) {
         this.url = `http://pictureperfect.firebaseio.com/users/${uid}`
@@ -58,6 +59,13 @@ var AllRequests = Backbone.Firebase.Collection.extend({
     }
 })
 
+var FulfilledImages = Backbone.Firebase.Collection.extend({
+    initialize: function(uid) {
+        this.url = `http://pictureperfect.firebaseio.com/users/${uid}/images`
+    }
+})
+
+//Intro Page
 var SplashPage = React.createClass({
     email: '',
     password: '',
@@ -86,8 +94,8 @@ var SplashPage = React.createClass({
     render: function() {
         return (
             <div className="loginContainer">
-                <Header />
-                <input placeholder="enter your user name" onChange={this._updateEmail} />
+                <LogInHeader />
+                <input placeholder="enter your e-mail" onChange={this._updateEmail} />
                 <input placeholder="enter your password" onChange={this._updatePassword} type="password" />
                 <input placeholder="enter your real name" onChange={this._updateName} />
                 <div className="splashButtons" >
@@ -99,13 +107,33 @@ var SplashPage = React.createClass({
     }
 })
 
+
+//Dash
+
 var DashView = React.createClass ({
     
     render:function(){
+        
+
+        return(
+
+            <div id='dashView'> 
+                <DashHeader user={this.props.user}/>
+                <NavBar />
+                {this.props.viewType}
+                <a href="#logout" >log out</a>
+            </div>
+            
+        )
+    }
+})
+
+var MapMakeRequest = React.createClass({
+
+    render:function(){
+
+        var self = this
         window.initMap = function(){
-
-
-
             var success= function(pos) {
                     var crd = pos.coords;
                     var myLatLng = {lat:crd.latitude, lng: crd.longitude}
@@ -132,11 +160,110 @@ var DashView = React.createClass ({
                     var marker = new google.maps.Marker({
                         position: myLatLng,
                         map: map,
-                        title: 'Hello World!',
+                        title: 'Picture Here?',
                         draggable:true,
                     });
 
+                    google.maps.event.addListener(marker, 'dragend', function(evt){
+                    document.getElementById('drag').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(5) + ' Current Lng: ' + evt.latLng.lng().toFixed(5) + '</p>'
+                    self.props.lat(evt.latLng.lat().toFixed(5))
+                    self.props.lng(evt.latLng.lng().toFixed(5))
+
+                    });
+
+                    google.maps.event.addListener(marker, 'dragstart', function(evt){
+                        document.getElementById('drag').innerHTML = '<p>Currently dragging marker...</p>';
+                    });
+
                     marker.addListener('click', function() {infowindow.open(map, marker);});
+                    self.forceUpdate()
+            }
+
+            var error= function (err) {
+                console.warn('ERROR(' + err.code + '): ' + err.message);
+            };
+
+            navigator.geolocation.getCurrentPosition(success, error)
+
+        }
+
+        return(
+            <div id="map">
+                 <img src="http://lorempixel.com/200/200" />   
+            </div>
+        )
+    }
+})
+
+var GoogleMap = React.createClass({
+
+    initialize:function(){
+
+       var mapGif= document.querySelector('#map')
+       mapGif.innerHTML = '<img id=loadingGif src={("http://i.giphy.com/xTk9ZvMnbIiIew7IpW.gif")} />'
+    },
+
+    render:function(){
+
+        var self = this
+
+        window.initMap = function(){
+
+
+            var success= function(pos) {
+                var crd = pos.coords;
+                var myLatLng = {lat:crd.latitude, lng: crd.longitude}
+
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: myLatLng,
+                    zoom: 10
+                });
+
+                var contentString = 
+                    '<div id="content">'+
+                        '<h5 id="firstHeading" class="firstHeading">Current Position</h5>'+
+                        '<div id="bodyContent">'+
+                            '<p>Click and drag your position to find where you want a picture taken</p>'+
+                            '<p>Latitude:'+crd.latitude+' <br>Longitude:'+crd.longitude+'</p>'
+                      '</div>'+
+                    '</div>';
+
+                var LocationsArray = function(data){
+                    var outputArr = []
+                    var locationObj = data.get('requestLocation')
+
+                    for(var prop in locationObj){
+                       var latLng =parseFloat(locationObj[prop])
+                       
+                       outputArr.push(latLng)
+
+         
+
+                    }
+                    return outputArr
+                }
+
+                var markers = self.props.requestData.models.map(LocationsArray)
+                //WORK FROM HERE----MARKERS ARRAY-->
+                console.log(markers)
+                
+                var infoWindow = new google.maps.InfoWindow(), marker, i;
+
+                  for(var i = 0; i < markers.length; i++ ) {
+                        console.log(markers[i][0])
+                        var position = new google.maps.LatLng(markers[i][0], markers[i][1]);
+
+                        var marker = new google.maps.Marker({
+                            position: position,
+                            map: map,
+                            title: 'Picture Here?'
+                        })
+
+                        marker.addListener('click', function() {infowindow.open(map, marker)});
+                    }
+                console.log('GREAT SUCCESS!')
+                console.log(self)
+                self.forceUpdate()
             }
         
             
@@ -146,31 +273,51 @@ var DashView = React.createClass ({
             };
 
             navigator.geolocation.getCurrentPosition(success, error)
+
+
         }
-           
         return(
-
-
-            <div id='dashView'> 
-            <Header user={this.props.user}/>
-            <NavBar />
-            <div id='crucible'>
-            </div>
             <div id="map">
-                
-            </div>
-            <a href="#logout" >log out</a>
-            </div>
+                    
+                </div>
         )
     }
 })
 
-var Header = React.createClass ({
+var LogInHeader = React.createClass ({
 
     render:function(){
+
         return (
         <div id='logo'>
+
             <image src ='http://www.carfacbc.org/wp-content/uploads/2015/01/picture-perfect.png' type='png'/>
+
+        </div>
+        )
+    }
+})
+
+var DashHeader = React.createClass ({
+
+    componentWillMount: function() {
+        var self = this
+        this.props.user.on('sync',function() {self.forceUpdate()})
+    },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.user.off('sync')
+    },
+
+    render:function(){
+
+        return (
+        <div id='logo'>
+
+            <image src ='http://www.carfacbc.org/wp-content/uploads/2015/01/picture-perfect.png' type='png'/>
+            <h1>Welcome, {this.props.user.attributes.name} </h1>
+        
 
         </div>
         )
@@ -212,11 +359,11 @@ var MakeRequestView = React.createClass ({
     descr: '',
 
     _setRequestLatitude: function(e) {
-        this.requestLatitude = e.target.value
+        this.requestLatitude = e
     },
 
     _setRequestLongitude: function(e) {
-        this.requestLongitude = e.target.value
+        this.requestLongitude = e
     },
 
     _setDescr: function(e) {
@@ -246,15 +393,19 @@ var MakeRequestView = React.createClass ({
 
         })
 
+        location.hash = 'dash'
+
     },
 
     render:function(){
         
         return (
         <div id='makeRequest'>
-            <input placeholder='Location Latitude' onChange={this._setRequestLatitude} />
-            <input placeholder='Location Longitude' onChange={this._setRequestLongitude} />
-            <input id='descr' placeholder='What you need a picture of?' onChange={this._setDescr} />
+            <div id='drag'></div>
+            <h1> Drag the marker to the place you want a picture taken </h1>
+            <MapMakeRequest lat={this._setRequestLatitude} lng={this._setRequestLongitude}/>
+            <p>What you need a picture of?</p>
+            <textarea id='descr' placeholder='Description' onChange={this._setDescr} />
             <button onClick={this._submitRequest}>Submit</button>
             
         </div>
@@ -268,10 +419,16 @@ var NearbyView = React.createClass ({
     componentWillMount: function() {
         var self = this
         this.props.allRequests.on('sync',function() {self.forceUpdate()})
+        this.props.userInbox.on('sync',function() {self.forceUpdate()})
+    },
+
+   
+    _updater:function(){
+        this.forceUpdate()
     },
 
     _allRequestsComponents: function (requestObj,i){
-        return <Request requestData={requestObj} key={i}/>
+        return <Request update={this.updater} requestData={requestObj} userInbox={this.props.userInbox} key={i}/>
 
     },
 
@@ -279,8 +436,9 @@ var NearbyView = React.createClass ({
         
         return (
         <div id='nearbyView'>
-            <h1>Coming at you with the full list of available requests!
+            <h1>These are all the requests in your area
             </h1>
+            <GoogleMap requestData={this.props.allRequests} />
             {this.props.allRequests.map(this._allRequestsComponents)}
             
         </div>
@@ -291,18 +449,72 @@ var NearbyView = React.createClass ({
 
 var Request = React.createClass ({
 
+    imageFile: '',
 
+    _handleImageUpload: function(e) {
+        var inputEl = e.target
+        this.imageFile = inputEl.files[0]        
+    },
+
+     _submitImage: function (){
+        var self = this
+        var uid = this.props.requestData.get('requestor_id')
+        var imageSend = new FulfilledImages(uid)
+        var messageId = this.props.requestData.get('id')
+        var inboxId = this.props.userInbox.get('id')
+
+
+
+        var sendImage = function (imageString){
+
+            imageSend.create({
+            imageURL:imageString,
+            sender_email: ref.getAuth().password.email,
+            sender_id: ref.getAuth().uid
+
+
+            })
+        } 
+
+        console.log(messageId)
+
+        if (this.imageFile) {
+            var reader = new FileReader()
+            reader.readAsDataURL(this.imageFile)
+            reader.addEventListener('load', function() {
+                var base64string = reader.result
+                sendImage(base64string)
+                var allMessage= new Firebase(`http://pictureperfect.firebaseio.com/allRequests/${messageId}`)
+                var userMessage= new Firebase(`http://pictureperfect.firebaseio.com/users/${uid}/requests/${inboxId}`)
+                allMessage.remove()
+
+                userMessage.remove()
+
+                location.hash = 'dash'
+            })
+       
+        }
+
+
+    },
 
     render:function(){
         
         return(
             <div className='nearbyRequest'>
-                <p>User: {this.props.requestData.get('requestor_email')}
-                </p><br/>
-                <p>Latitude: {this.props.requestData.get('requestLocation').lat}</p><br/>
-                <p>Longitude: {this.props.requestData.get('requestLocation').lng} </p><br/>
-                <p>Picture Objective: {this.props.requestData.get('content')}
-                </p>
+                <div className='part1'>
+                    <p>User: {this.props.requestData.get('requestor_email')}
+                    </p><br/>
+                    <p>Latitude: {this.props.requestData.get('requestLocation').lat}</p><br/>
+                    <p>Longitude: {this.props.requestData.get('requestLocation').lng} </p><br/>
+                    <p>Picture Objective: {this.props.requestData.get('content')}</p>
+                </div>
+                <div className='part2'>
+                    <p>Image Upload</p>
+                    <input type='file' onChange={this._handleImageUpload}/>
+                    <button onClick={this._submitImage}>Submit Image</button>
+                </div>
+                
             </div>
         )
 
@@ -329,7 +541,6 @@ var PendingView = React.createClass ({
     },
 
     render:function(){
-        console.log(this.props.user.get('requests'))
         return (
         <div id='pending'>
             <h1>All the requests you are waiting for</h1>
@@ -357,15 +568,48 @@ var UserRequests = React.createClass ({
 
 var ImageView = React.createClass ({
 
+
+    componentWillMount: function() {
+        var self = this
+        this.props.images.on('sync',function() {self.forceUpdate()})
+    },
+
+    _imageComponentsCreator:function(imageModelArray,i){
+
+        return <Image imageData={imageModelArray} key={i}/>
+
+
+    },
+
     render:function(){
+        
         return (
         <div id='image'>
-            View your Images
+            <h1>View your requested pictures</h1>
+            {this.props.images.models.map(this._imageComponentsCreator)}
         </div>
         )
     }
 })
 
+var Image = React.createClass ({
+
+    render:function(){
+
+        var containerStyle = {display: 'block'}
+        var imgStyle = {display: 'block'}
+        if (!this.props.imageData.get('sender_email')) imgStyle.display = "none"
+        if (this.props.imageData.id === undefined) containerStyle.display = "none"
+
+        return(
+            <div style={containerStyle} className='images'>
+                <p>From: {this.props.imageData.get('sender_email')}</p>
+                <img style={imgStyle} src={this.props.imageData.get('imageURL')} />
+                
+            </div>
+        )
+    }
+})
 
 
 function app() {
@@ -415,29 +659,32 @@ function app() {
             var user= new UserModel(uid)
             var allRequests= new AllRequests()
             allRequests.fetch()
-            DOM.render(<DashView  user={user} />,document.querySelector('.container'))
-            DOM.render(<NearbyView allRequests={allRequests} user={user} />,document.querySelector('#crucible'))
+            var userInbox = new UserPersonalRequests (uid)
+            userInbox.fetch()
+            var viewType = <NearbyView userInbox={userInbox} allRequests={allRequests} user={user} />
+            DOM.render(<DashView userInbox={userInbox} viewType ={viewType} user={user} />,document.querySelector('.container'))
         },
 
         showMakeRequests: function() {
             var uid = ref.getAuth().uid
-            var user= new UserModel(uid)   
-            DOM.render(<DashView user={user} />,document.querySelector('.container'))
-            DOM.render(<MakeRequestView user={user} />,document.querySelector('#crucible'))
-        },
+            var user= new UserModel(uid)  
+            var viewType =  <MakeRequestView user={user} />
+            DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
+        },   
 
         showPendingRequests: function() {
             var uid = ref.getAuth().uid
             var user= new UserModel(uid)
-            DOM.render(<DashView user={user} />,document.querySelector('.container'))
-            DOM.render(<PendingView user={user} />,document.querySelector('#crucible'))
+            var viewType = <PendingView user={user} />
+            DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
         },
 
         showImageLibrary: function() {
             var uid = ref.getAuth().uid
             var user= new UserModel(uid)
-            DOM.render(<DashView user={user} />,document.querySelector('.container'))
-            DOM.render(<ImageView user={user} />,document.querySelector('#crucible'))
+            var images = new FulfilledImages(uid)
+            var viewType = <ImageView images={images}user={user} />
+            DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
         },
 
         _logUserIn: function(email,password){
