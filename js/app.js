@@ -95,6 +95,7 @@ var SplashPage = React.createClass({
         return (
             <div className="loginContainer">
                 <LogInHeader />
+                <h1>Your access to all the places you aren't currently at</h1>
                 <input placeholder="enter your e-mail" onChange={this._updateEmail} />
                 <input placeholder="enter your password" onChange={this._updatePassword} type="password" />
                 <input placeholder="enter your real name" onChange={this._updateName} />
@@ -189,7 +190,7 @@ var MapMakeRequest = React.createClass({
 
         return(
             <div id="map">
-                 <img src="http://lorempixel.com/200/200" />   
+                 <img src="http://img.ffffound.com/static-data/assets/6/f71fbabb835aebca4489ba2e0d5cd6aff3ad528c_m.gif" />   
             </div>
         )
     }
@@ -197,11 +198,6 @@ var MapMakeRequest = React.createClass({
 
 var GoogleMap = React.createClass({
 
-    initialize:function(){
-
-       var mapGif= document.querySelector('#map')
-       mapGif.innerHTML = '<img id=loadingGif src={("http://i.giphy.com/xTk9ZvMnbIiIew7IpW.gif")} />'
-    },
 
     render:function(){
 
@@ -278,8 +274,8 @@ var GoogleMap = React.createClass({
         }
         return(
             <div id="map">
-                    
-                </div>
+                <img src="http://img.ffffound.com/static-data/assets/6/f71fbabb835aebca4489ba2e0d5cd6aff3ad528c_m.gif" />   
+            </div>
         )
     }
 })
@@ -370,10 +366,15 @@ var MakeRequestView = React.createClass ({
         this.descr = e.target.value
     },
 
+    _hash:function(){
+        location.hash = 'dash'
+    },
+
     _submitRequest: function (){
         var self = this
         var location = {lat:self.requestLatitude, lng: self.requestLongitude}
         var uid = this.props.user.get('id')
+        
         var request = new UserPersonalRequests(uid)
         var allRequest = new AllRequests ()
         
@@ -393,7 +394,7 @@ var MakeRequestView = React.createClass ({
 
         })
 
-        location.hash = 'dash'
+        self._hash()
 
     },
 
@@ -422,7 +423,12 @@ var NearbyView = React.createClass ({
         this.props.userInbox.on('sync',function() {self.forceUpdate()})
     },
 
-   
+   componentWillUnmount: function() {
+        var self = this
+        this.props.allRequests.off('sync')
+        this.props.userInbox.off('sync')
+    },
+
     _updater:function(){
         this.forceUpdate()
     },
@@ -461,9 +467,33 @@ var Request = React.createClass ({
         var uid = this.props.requestData.get('requestor_id')
         var imageSend = new FulfilledImages(uid)
         var messageId = this.props.requestData.get('id')
-        var inboxId = this.props.userInbox.get('id')
+        var messageLocation = this.props.requestData.get('requestLocation')
+        var inboxArray = this.props.userInbox.models
+        console.log(inboxArray)
+        console.log(messageId)
+        console.log(messageLocation)
 
+        var identifyInboxRequest= function (arrayofrequests){
+            var newStr = ''
+            arrayofrequests.forEach(function(el){
+                var location= el.get('requestLocation')
+                console.log(location)
+                console.log(messageLocation)
+                if(messageLocation.lat === location.lat){
+                    console.log(el.get('id'))
+                    newStr += el.get('id') 
+                }
+                
+                
+            })
 
+            console.log (newStr)
+            return newStr
+              
+            
+        }
+
+        identifyInboxRequest(inboxArray)
 
         var sendImage = function (imageString){
 
@@ -474,9 +504,10 @@ var Request = React.createClass ({
 
 
             })
+            
         } 
 
-        console.log(messageId)
+        
 
         if (this.imageFile) {
             var reader = new FileReader()
@@ -490,9 +521,8 @@ var Request = React.createClass ({
 
                 userMessage.remove()
 
-                location.hash = 'dash'
             })
-       
+           
         }
 
 
@@ -527,6 +557,12 @@ var PendingView = React.createClass ({
         var self = this
         this.props.user.on('sync',function() {self.forceUpdate()})
     },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.user.off('sync')
+    },
+
 
     _pendingRequestComponent:function(requestObj,i){
         var newArray=[]
@@ -573,6 +609,12 @@ var ImageView = React.createClass ({
         var self = this
         this.props.images.on('sync',function() {self.forceUpdate()})
     },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.images.off('sync')
+    },
+
 
     _imageComponentsCreator:function(imageModelArray,i){
 
@@ -662,7 +704,7 @@ function app() {
             var userInbox = new UserPersonalRequests (uid)
             userInbox.fetch()
             var viewType = <NearbyView userInbox={userInbox} allRequests={allRequests} user={user} />
-            DOM.render(<DashView userInbox={userInbox} viewType ={viewType} user={user} />,document.querySelector('.container'))
+            DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
         },
 
         showMakeRequests: function() {

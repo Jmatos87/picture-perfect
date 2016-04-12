@@ -167,6 +167,11 @@ body{
             display: block;
             margin: 5em;
             padding: 2em;
+            margin:20px auto;
+        }
+        h1{
+            font-size:30px;
+            color:darkmagenta;
         }
     }
 //Dash----------->
@@ -208,6 +213,10 @@ body{
         h1{
             font-size: 30px;
             color:darkmagenta;
+        }
+        img{
+            height:500px;
+            width:500px;
         }
         ::-webkit-input-placeholder {
     color: black;
@@ -255,6 +264,10 @@ body{
         input{
             display: block;
             margin: 10px auto;
+        }
+        img{
+            height:500px;
+            width:500px;
         }
 
         button{
