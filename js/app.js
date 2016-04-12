@@ -95,7 +95,7 @@ var SplashPage = React.createClass({
         return (
             <div className="loginContainer">
                 <LogInHeader />
-                <h1>Your access to all the places you aren't currently at</h1>
+                <h1>Your visual access to all the places you aren't currently at</h1>
                 <input placeholder="enter your e-mail" onChange={this._updateEmail} />
                 <input placeholder="enter your password" onChange={this._updatePassword} type="password" />
                 <input placeholder="enter your real name" onChange={this._updateName} />
