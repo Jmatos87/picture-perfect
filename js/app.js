@@ -331,9 +331,15 @@ var NavBar = React.createClass ({
                         <li className="tabs">Requests Near Me</li>
                     </a>
                     <a href="#makeRequest">
-                        <li className="tabs">Make a New Request
+                        <li className="tabs">Make a Local Request
                         </li>
                     </a>
+
+                    <a href="#search">
+                        <li className="tabs">Search Around the World
+                        </li>
+                    </a>
+
                     <a href="#pending">
                         <li className="tabs">Pending Requests
                         </li>
@@ -430,11 +436,12 @@ var NearbyView = React.createClass ({
     },
 
     _updater:function(){
-        this.forceUpdate()
+        var self = this
+        self.forceUpdate()
     },
 
     _allRequestsComponents: function (requestObj,i){
-        return <Request update={this.updater} requestData={requestObj} userInbox={this.props.userInbox} key={i}/>
+        return <Request update={this._updater} requestData={requestObj} userInbox={this.props.userInbox} key={i}/>
 
     },
 
@@ -469,31 +476,31 @@ var Request = React.createClass ({
         var messageId = this.props.requestData.get('id')
         var messageLocation = this.props.requestData.get('requestLocation')
         var inboxArray = this.props.userInbox.models
-        console.log(inboxArray)
-        console.log(messageId)
-        console.log(messageLocation)
+        // console.log(inboxArray)
+        // console.log(messageId)
+        // console.log(messageLocation)
 
-        var identifyInboxRequest= function (arrayofrequests){
-            var newStr = ''
-            arrayofrequests.forEach(function(el){
-                var location= el.get('requestLocation')
-                console.log(location)
-                console.log(messageLocation)
-                if(messageLocation.lat === location.lat){
-                    console.log(el.get('id'))
-                    newStr += el.get('id') 
-                }
+        // var identifyInboxRequest= function (arrayofrequests){
+        //     var newStr = ''
+        //     arrayofrequests.forEach(function(el){
+        //         var location= el.get('requestLocation')
+        //         console.log(location)
+        //         console.log(messageLocation)
+        //         if(messageLocation.lat === location.lat){
+        //             console.log(el.get('id'))
+        //             newStr += el.get('id') 
+        //         }
                 
                 
-            })
+        //     })
 
-            console.log (newStr)
-            return newStr
+        //     console.log (newStr)
+        //     return newStr
               
             
-        }
+        // }
 
-        identifyInboxRequest(inboxArray)
+        // identifyInboxRequest(inboxArray)
 
         var sendImage = function (imageString){
 
@@ -516,10 +523,11 @@ var Request = React.createClass ({
                 var base64string = reader.result
                 sendImage(base64string)
                 var allMessage= new Firebase(`http://pictureperfect.firebaseio.com/allRequests/${messageId}`)
-                var userMessage= new Firebase(`http://pictureperfect.firebaseio.com/users/${uid}/requests/${inboxId}`)
+                // var userMessage= new Firebase(`http://pictureperfect.firebaseio.com/users/${uid}/requests/${inboxId}`)
                 allMessage.remove()
 
-                userMessage.remove()
+                // userMessage.remove()
+                self.props.update()
 
             })
            
@@ -665,7 +673,8 @@ function app() {
             'nearby': 'showNearbyRequests',
             'makeRequest': 'showMakeRequests',
             'pending': 'showPendingRequests',
-            'images': 'showImageLibrary'
+            'images': 'showImageLibrary',
+            'search': 'showSearch'
         },
 
         initialize: function() {
@@ -729,6 +738,14 @@ function app() {
             DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
         },
 
+        showSearch: function() {
+            var uid = ref.getAuth().uid
+            var user= new UserModel(uid)  
+            var viewType =  <SearchView user={user} />
+            DOM.render(<DashView viewType ={viewType} user={user} />,document.querySelector('.container'))
+        },
+
+
         _logUserIn: function(email,password){
         
             this.ref.authWithPassword({
@@ -743,6 +760,7 @@ function app() {
               }
             )
         },
+
 
         _createUser: function(email,password,realName) {
         
