@@ -129,6 +129,8 @@ var DashView = React.createClass ({
     }
 })
 
+
+//Maps
 var MapMakeRequest = React.createClass({
 
     render:function(){
@@ -198,8 +200,7 @@ var MapMakeRequest = React.createClass({
 
 var GoogleMap = React.createClass({
 
-
-    render:function(){
+    componentDidMount:function(){
 
         var self = this
 
@@ -214,15 +215,6 @@ var GoogleMap = React.createClass({
                     center: myLatLng,
                     zoom: 10
                 });
-
-                var contentString = 
-                    '<div id="content">'+
-                        '<h5 id="firstHeading" class="firstHeading">Current Position</h5>'+
-                        '<div id="bodyContent">'+
-                            '<p>Click and drag your position to find where you want a picture taken</p>'+
-                            '<p>Latitude:'+crd.latitude+' <br>Longitude:'+crd.longitude+'</p>'
-                      '</div>'+
-                    '</div>';
 
                 var LocationsArray = function(data){
                     var outputArr = []
@@ -272,6 +264,12 @@ var GoogleMap = React.createClass({
 
 
         }
+
+    },
+
+    render:function(){
+
+        
         return(
             <div id="map">
                 <img src="http://img.ffffound.com/static-data/assets/6/f71fbabb835aebca4489ba2e0d5cd6aff3ad528c_m.gif" />   
@@ -279,6 +277,96 @@ var GoogleMap = React.createClass({
         )
     }
 })
+
+var SearchMap = React.createClass({
+
+    componentDidMount:function(){
+
+        var self = this
+
+
+        var map;
+        var infoWindow;
+        var service;
+
+
+        window.initMap = function(){
+
+
+            map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -33.867, lng: 151.206},
+            zoom: 15,
+            styles: [{
+              stylers: [{ visibility: 'simplified' }]
+            }, {
+              elementType: 'labels',
+              stylers: [{ visibility: 'off' }]
+            }]
+          });
+
+          infoWindow = new google.maps.InfoWindow();
+          service = new google.maps.places.PlacesService(map);
+
+          // The idle event is a debounced event, so we can query & listen without
+          // throwing too many requests at the server.
+          map.addListener('idle', performSearch);
+        }
+
+        function performSearch() {
+          var request = {
+            bounds: map.getBounds(),
+            keyword: 'pizza'
+          };
+          service.radarSearch(request, callback);
+        }
+
+        function callback(results, status) {
+          if (status !== google.maps.places.PlacesServiceStatus.OK) {
+            console.error(status);
+            return;
+          }
+          for (var i = 0, result; result = results[i]; i++) {
+            addMarker(result);
+          }
+        }
+
+        function addMarker(place) {
+          var marker = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location,
+            icon: {
+              url: 'http://maps.gstatic.com/mapfiles/circle.png',
+              anchor: new google.maps.Point(10, 10),
+              scaledSize: new google.maps.Size(10, 17)
+            }
+          });
+
+          google.maps.event.addListener(marker, 'click', function() {
+            service.getDetails(place, function(result, status) {
+              if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                console.error(status);
+                return;
+              }
+              infoWindow.setContent(result.name);
+              infoWindow.open(map, marker);
+            });
+          });
+          performSearch()
+      }
+    },
+
+    render:function(){
+
+        return(
+            <div id='map'>
+                
+            </div>
+        )
+    }
+
+})
+
+//Static stuff
 
 var LogInHeader = React.createClass ({
 
@@ -356,6 +444,8 @@ var NavBar = React.createClass ({
     }
 })
 
+
+//Views
 var MakeRequestView = React.createClass ({
     requestLocation: '',
     descr: '',
@@ -460,6 +550,122 @@ var NearbyView = React.createClass ({
     }
 })
 
+var PendingView = React.createClass ({
+
+    componentWillMount: function() {
+        var self = this
+        this.props.user.on('sync',function() {self.forceUpdate()})
+    },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.user.off('sync')
+    },
+
+
+    _pendingRequestComponent:function(requestObj,i){
+        var newArray=[]
+        for(var prop in requestObj){
+            var desiredObj=requestObj[prop]
+            newArray.push(<UserRequests userRequestData={desiredObj} key={i} />)
+        }
+        return newArray
+
+        
+
+    },
+
+    render:function(){
+        return (
+        <div id='pending'>
+            <h1>All the requests you are waiting for</h1>
+            {this._pendingRequestComponent(this.props.user.get('requests'))}
+              
+        </div>
+        )
+    }
+})
+
+var ImageView = React.createClass ({
+
+
+    componentWillMount: function() {
+        var self = this
+        this.props.images.on('sync',function() {self.forceUpdate()})
+    },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.images.off('sync')
+    },
+
+
+    _imageComponentsCreator:function(imageModelArray,i){
+
+        return <Image imageData={imageModelArray} key={i}/>
+
+
+    },
+
+    render:function(){
+        
+        return (
+        <div id='image'>
+            <h1>View your requested pictures</h1>
+            {this.props.images.models.map(this._imageComponentsCreator)}
+        </div>
+        )
+    }
+})
+
+var SearchView = React.createClass({
+    render:function(){
+        return (
+            <div id='searchView'>
+                <SearchMap/>
+
+
+
+            </div>
+        )
+    }
+})
+//Sub-components
+var UserRequests = React.createClass ({
+    render:function(){
+  
+        return (
+            <div className='userRequests'>
+                <p>Latitude: {this.props.userRequestData.requestLocation.lat}</p><br/>
+                <p>Longitude: {this.props.userRequestData.requestLocation.lng} </p><br/>
+                <p>Picture Objective: {this.props.userRequestData.content}
+                </p><br/>
+            
+            </div>
+        )
+    }
+})
+
+
+var Image = React.createClass ({
+
+    render:function(){
+
+        var containerStyle = {display: 'block'}
+        var imgStyle = {display: 'block'}
+        if (!this.props.imageData.get('sender_email')) imgStyle.display = "none"
+        if (this.props.imageData.id === undefined) containerStyle.display = "none"
+
+        return(
+            <div style={containerStyle} className='images'>
+                <p>From: {this.props.imageData.get('sender_email')}</p>
+                <img style={imgStyle} src={this.props.imageData.get('imageURL')} />
+                
+            </div>
+        )
+    }
+})
+
 var Request = React.createClass ({
 
     imageFile: '',
@@ -474,8 +680,8 @@ var Request = React.createClass ({
         var uid = this.props.requestData.get('requestor_id')
         var imageSend = new FulfilledImages(uid)
         var messageId = this.props.requestData.get('id')
-        var messageLocation = this.props.requestData.get('requestLocation')
-        var inboxArray = this.props.userInbox.models
+        // var messageLocation = this.props.requestData.get('requestLocation')
+        // var inboxArray = this.props.userInbox.models
         // console.log(inboxArray)
         // console.log(messageId)
         // console.log(messageLocation)
@@ -559,108 +765,7 @@ var Request = React.createClass ({
     }
 })
 
-var PendingView = React.createClass ({
-
-    componentWillMount: function() {
-        var self = this
-        this.props.user.on('sync',function() {self.forceUpdate()})
-    },
-
-    componentWillUnmount: function() {
-        var self = this
-        this.props.user.off('sync')
-    },
-
-
-    _pendingRequestComponent:function(requestObj,i){
-        var newArray=[]
-        for(var prop in requestObj){
-            var desiredObj=requestObj[prop]
-            newArray.push(<UserRequests userRequestData={desiredObj} key={i} />)
-        }
-        return newArray
-
-        
-
-    },
-
-    render:function(){
-        return (
-        <div id='pending'>
-            <h1>All the requests you are waiting for</h1>
-            {this._pendingRequestComponent(this.props.user.get('requests'))}
-              
-        </div>
-        )
-    }
-})
-
-var UserRequests = React.createClass ({
-    render:function(){
-  
-        return (
-            <div className='userRequests'>
-                <p>Latitude: {this.props.userRequestData.requestLocation.lat}</p><br/>
-                <p>Longitude: {this.props.userRequestData.requestLocation.lng} </p><br/>
-                <p>Picture Objective: {this.props.userRequestData.content}
-                </p><br/>
-            
-            </div>
-        )
-    }
-})
-
-var ImageView = React.createClass ({
-
-
-    componentWillMount: function() {
-        var self = this
-        this.props.images.on('sync',function() {self.forceUpdate()})
-    },
-
-    componentWillUnmount: function() {
-        var self = this
-        this.props.images.off('sync')
-    },
-
-
-    _imageComponentsCreator:function(imageModelArray,i){
-
-        return <Image imageData={imageModelArray} key={i}/>
-
-
-    },
-
-    render:function(){
-        
-        return (
-        <div id='image'>
-            <h1>View your requested pictures</h1>
-            {this.props.images.models.map(this._imageComponentsCreator)}
-        </div>
-        )
-    }
-})
-
-var Image = React.createClass ({
-
-    render:function(){
-
-        var containerStyle = {display: 'block'}
-        var imgStyle = {display: 'block'}
-        if (!this.props.imageData.get('sender_email')) imgStyle.display = "none"
-        if (this.props.imageData.id === undefined) containerStyle.display = "none"
-
-        return(
-            <div style={containerStyle} className='images'>
-                <p>From: {this.props.imageData.get('sender_email')}</p>
-                <img style={imgStyle} src={this.props.imageData.get('imageURL')} />
-                
-            </div>
-        )
-    }
-})
-
+//Router
 
 function app() {
     // start app
