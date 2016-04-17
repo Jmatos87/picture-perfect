@@ -803,7 +803,7 @@ function app() {
             'makeRequest': 'showMakeRequests',
             'pending': 'showPendingRequests',
             'images': 'showImageLibrary',
-            // 'search': 'showSearch'
+            '*default':'showSplashPage',
         },
 
         initialize: function() {
