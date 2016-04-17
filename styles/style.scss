@@ -142,25 +142,64 @@ body {
 /**
  * App code
  */
+
+ //Colors
+
+$fontColor: #0192B1;
+$lightColor: white;
+$bg: #F1EFE9;
+$bigFont:#C8292F;
+$faded:rgba(255,255,255,.8);
+
 body{
     height: 100vh;
-    background: linear-gradient(to bottom right,#C3C3E5,#F1F0FF);
-    // background: #C3C3E5;
+    position: relative;
 }
-
+br{
+    display: block;
+    margin: 10px 0;
+}
  .container {
 
     text-align: center;
 
+    #logOut{
+    background: $bg;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 45px;
+    width: 120px;
+    border: 3px solid $fontColor;
+    margin-top: 5px;
+    margin-right: 5px;
+    line-height: 35px;
+
+    }
+    .list{
+        display:inline-block;
+        width: 50%;
+        vertical-align: top;
+    }
+
     #map{
-        height:500px;
-        width: 500px;
+        display:inline-block;
+        width: 50%;
+        height:400px;
         margin: 0 auto;
         box-shadow: 5px 5px 2px 0px rgba(0,0,0,0.75);
     }
+    .text>h1:first-child{
+        margin-bottom: 0
+    }
+    .text{
+        background-color: $faded;
+        width: 837px;
+        margin: 0 auto;
+    }
 //Splash----------->
     .loginContainer {
-        border: 5px solid #555;
+        
         text-align: center;
 
         input {
@@ -171,40 +210,86 @@ body{
         }
         h1{
             font-size:30px;
-            color:darkmagenta;
+            color:$bigFont;
         }
     }
 //Dash----------->
-    #logo{
-        h1{
+    #welcome>h1{
+        
             font-size: 50px;
-            color:darkmagenta;
+            color:$bigFont; 
+            margin-bottom: 0;
+    }
+    #welcome{
+        background-color: $faded;
+        width:837px;
+        margin: 0 auto;
+
+    }
+    
+    #top{
+        background-color: $bg;
+        #logo{
+            display: inline-block;
+            vertical-align: bottom;
+            margin-bottom: 15px;
+            img{
+              
+              width:100%;
+              margin: auto;  
+            }
+        #nav{
+            display: inline-block;
+            width:50%;  
+            
+        }
         }
     }
-    #navigation{
-
-        text-align: center;
-        margin-left: 10%;
-        margin-right: 13%;
 
 
-        .tabs:hover{
-            color:#C3C3E5;
-            background-color: darkmagenta
+        #bgImg{
+            min-height: 100%;
+            min-width: 1024px;
+            width: 100%;
+            height: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -2;
+
         }
-        .tabs{
-            font-size:20px;
-            display:inline-block;
-            text-decoration:none;
-            line-height:50px;
-            border: 2px solid darkmagenta;
-            padding: 5px;
 
-            a{
-                margin:0
+        
+    
+    
+   
+        
+        #navigation{
+
+            display: inline-block;
+            
+            .tabs:hover{
+                color:$lightColor;
+                background-color: $fontColor
+            }
+            .tabs:first-child{
+                border-left: 2px solid $fontColor;
+            }
+            .tabs{
+                font-size:20px;
+                display:inline-block;
+                text-decoration:none;
+                line-height:50px;
+                border: 2px solid $fontColor;
+                border-left:none;
+                padding: 5px;
+
+                a{
+                    margin:0;
+                }
             }
         }
-    }
+    
 
 //MakeRequestView-------->
 
@@ -212,11 +297,17 @@ body{
 
         h1{
             font-size: 30px;
-            color:darkmagenta;
+            color:$bigFont;
         }
         img{
-            height:500px;
-            width:500px;
+            height:400px;
+            width:100%;
+        }
+        #descr{
+
+            display:inline-block;
+            width: 50%;
+            vertical-align: top;
         }
         ::-webkit-input-placeholder {
     color: black;
@@ -226,26 +317,27 @@ body{
             display:block;
             width:300px;
             height:300px;
-            background-color: purple;
+            background-color: goldenrod;
             box-shadow: 5px 5px 2px 0px rgba(0,0,0,0.75);
             color: black;
             transition: .5s all ease;
         }
         textarea:focus{
-            color:darkmagenta;
-            background-color: #CECEEB;
+            color:$fontColor;
+            background-color: $bg;
              outline-width: 0;
         }
 
         button:hover{
-                    background-color: #CECEEB;
-                    color: darkmagenta;
+                    background-color: $bg;
+                    color: $bigFont;
                 }
 
         button{
+            display:block;
             border-radius: 40%;
             margin: 20px auto;
-            background-color: darkmagenta;
+            background-color: $bigFont;
             color: #CECEEB;
         }
         
@@ -256,9 +348,14 @@ body{
 
     #nearbyView{
 
+        #nearbyBot{
+            margin-top: 10px;
+        }
+
+
         h1{
             font-size: 30px;
-            color:darkmagenta;
+            color:$bigFont;
         }
 
         input{
@@ -266,8 +363,8 @@ body{
             margin: 10px auto;
         }
         img{
-            height:500px;
-            width:500px;
+            height:400px;
+            width:100%;
         }
 
         button{
@@ -275,16 +372,22 @@ body{
             margin: 10px auto;
         }
 
+        .nearbyRequest:first-child{
+                margin-top: 0
+            }
+
         .nearbyRequest{
 
-            background-color: #f2f2ff;
-            border: 2px solid darkmagenta;
-            margin-left: 25%;
-            margin-right: 25%;
+            background-color: $bg;
+            border: 2px solid $fontColor;
+            margin-left: 10%;
+            margin-right: 5%;
             margin-bottom: 25px;
             margin-top: 25px;
             padding:10px;
             box-shadow: 5px 5px 2px 0px rgba(0,0,0,0.75);
+            
+
 
             .part1{
                 display:inline-block;
@@ -299,20 +402,20 @@ body{
                     width:100%;
                 }
                 button:hover{
-                    background-color: #CECEEB;
-                    color: darkmagenta;
+                    background-color: $bg;
+                    color: $bigFont;
                 }
                 button{
             border-radius: 40%;
             margin: 20px auto;
-            background-color: darkmagenta;
-            color: #CECEEB
+            background-color: $fontColor;
+            color: $bg
         }
             }
             
             p{
                 margin:0 auto;
-                color:#8B008B;
+                color:$fontColor;
             }
 
         }
@@ -321,15 +424,15 @@ body{
     #pending{
          h1{
             font-size: 30px;
-            color:darkmagenta;
+            color:$bigFont;
         }
 
         .userRequests{
-            border: 2px solid darkmagenta;
+            border: 2px solid $fontColor;
             margin-left: 25%;
             margin-right: 25%;
             margin-bottom: 20px;
-            background-color: #f2f2ff;
+            background-color: $bg;
             padding:10px;
 
             p{
@@ -347,21 +450,23 @@ body{
 
 
         .images{
-            background-color: #f2f2ff;
+            background-color: $bg;
             margin: 10px auto;
             padding:10px; 
         }
 
         h1{
             font-size: 30px;
-            color:darkmagenta;
+            color:$bigFont;
         }
 
         p{
-            color:darkmagenta;
+            color:$fontColor;
             text-align: left;
             margin-left: 7.5%;
-            margin-bottom: 10px
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-indent: 0
         }
 
         img{
@@ -370,3 +475,15 @@ body{
             margin: 0 auto
         }
     }
+
+@media only screen and (max-width:860px){
+#logo{
+  display:block;
+  width:100%
+  }
+#descr{
+  display:block;
+  width:100%;
+  }
+
+}
