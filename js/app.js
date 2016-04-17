@@ -436,11 +436,11 @@ var NavBar = React.createClass ({
                             </li>
                         </a>
 
-                        {//<a href="#pending">
-                           }{// <li className="tabs">Pending Requests
-                            }{//</li>
-                        }{//</a>
-}
+                       <a href="#pending">
+                           <li className="tabs">Pending Requests
+                            </li>
+                        </a>
+
 
 
                         <a href="#images">
