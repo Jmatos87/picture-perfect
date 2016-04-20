@@ -168,6 +168,12 @@ h5{
     font-size:20px;
 
 }
+h6{
+    font-size: 20px;
+    color:$bigFont;
+    padding:10px;
+    margin: 0;
+}
  .container {
 
     text-align: center;
@@ -239,7 +245,7 @@ h5{
     #top{
         background-color: $bg;
         #logo{
-            display: inline-block;
+            display: block;
             vertical-align: bottom;
             margin-bottom: 15px;
             img{
@@ -441,6 +447,7 @@ h5{
             margin-left: 25%;
             margin-right: 25%;
             margin-bottom: 20px;
+            margin-top: 10px;
             background-color: $bg;
             padding:10px;
 
@@ -454,12 +461,18 @@ h5{
 //Image--------------->
 
     #image{
-        margin-left: 15%;
-        margin-right: 15%;
+        width:100%;
+        margin: 0 auto;
+        img{
+            margin-left: 15%;
+            margin-right: 15%;
+        }
+      
 
 
         .images{
             background-color: $bg;
+            width:80%;
             margin: 10px auto;
             padding:10px; 
         }
@@ -573,7 +586,7 @@ h5{
       .tabs{
         width:50%;
         margin:0 auto;
-        height:100px;
+        height:77px;
         vertical-align: bottom;
         
       }

@@ -448,26 +448,26 @@ var NavBar = React.createClass ({
                 <div id='navigation'>
                     <ul>
                         <a href="#nearby">
-                            <li className="tabs">Requests Near Me</li>
+                            <li className="tabs"><h6>Requests Near Me</h6></li>
                         </a>
 
                         <a href="#makeRequest">
-                            <li className="tabs">Make a Local Request
+                            <li className="tabs"><h6>Make a Local Request</h6>
                             </li>
                         </a>
 
                        <a href="#pending">
-                           <li className="tabs">Your Requests
+                           <li className="tabs"><h6>Your Requests</h6>
                             </li>
                         </a>
 
                          <a href="#sent">
-                            <li className="tabs">Images Sent
+                            <li className="tabs"><h6>Images Sent</h6>
                             </li>
                         </a>
 
                         <a href="#images">
-                            <li className="tabs">Images Received
+                            <li className="tabs"><h6>Images Received</h6>
                             </li>
                         </a>
 
@@ -763,7 +763,7 @@ var SentImagesView = React.createClass({
         return (
         <div id='image'>
             <div className='text'>
-                <h1>View your requested pictures</h1>
+                <h1>View your sent pictures</h1>
             </div>
             {this.props.images.models.map(this._imageComponentsCreator)}
         </div>
