@@ -307,14 +307,6 @@ var GoogleMap = React.createClass({
                             zoom: 10
                     }
 
-                    // var contentString = 
-                    //     '<div id="content">'+
-                    //         '<h5 id="firstHeading" class="firstHeading">Current Position</h5>'+
-                    //         '<div id="bodyContent">'+
-                    //             '<p>Click and drag your position to find where you want a picture taken</p>'+
-                    //             '<p>Latitude:'+crd.latitude+' <br>Longitude:'+crd.longitude+'</p>'
-                    //         '</div>'+
-                    //     '</div>';
 
                     
                
@@ -339,8 +331,11 @@ var GoogleMap = React.createClass({
 
 
                     for(var i = 0; i < markers.length; i++ ) {
+                            var newMarker = markers[i]
                           
                             var position = new google.maps.LatLng(markers[i][0], markers[i][1]);
+
+                            markers[i][2]=i
 
                             var marker = new google.maps.Marker({
                                 position: position,
@@ -348,7 +343,42 @@ var GoogleMap = React.createClass({
                                 title: 'Picture Here?'
                             })
 
-                            marker.addListener('click', function() {infowindow.open(map, marker)});
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: 'holding...'
+                          },i);
+
+                        var content = '<div id="content">'+
+                            '<h5 id="firstHeading" class="firstHeading">Request #'+(i+1)+'</h5></div>'
+
+
+                        google.maps.event.addListener(marker, 'click', function (m) {
+                        
+                       
+                              var latLong = {
+                                lat: m.latLng.lat(),
+                                lng: m.latLng.lng()
+                            }
+
+                            Backbone.Events.trigger("reqMarkerClick", latLong)
+
+                          
+
+                        });
+
+                        google.maps.event.addListener(marker,'click', (function(marker,content,infoWindow,m){ 
+                            return function() {
+
+                                infoWindow.setContent(content);
+                                infoWindow.open(map,marker);
+
+
+                            };
+                        })(marker,content,infoWindow)); 
+                       
+
+                    
+
+                       
                     }
                             self.forceUpdate()
                 }
@@ -544,13 +574,42 @@ var MakeRequestView = React.createClass ({
 })
 
 var NearbyView = React.createClass ({
+    getInitialState: function(){
+        return {
+            currentlySelectedModel: {}
+        }
+    },
     
     componentWillMount: function() {
         var self = this
         this.props.allRequests.on('sync',function() {self.forceUpdate()})
         this.props.userInbox.on('sync',function() {self.forceUpdate()})
+
+        Backbone.Events.on("reqMarkerClick", function(payload){
+            console.log('...polo!', payload)
+            var selectedModel = self.props.allRequests.find(function(req){
+                var reqCoords = req.get('requestLocation')
+                
+                var modelCoords = ( parseInt(  (parseFloat(reqCoords.lat) + parseFloat(reqCoords.lng) ) * 10000000 ) )
+
+                var selectedCoords = ( parseInt( (payload.lat + payload.lng) * 10000000 ) )
+                
+                console.log (selectedCoords, "----", modelCoords)
+                return modelCoords ===  selectedCoords  
+            })
+
+            self.setState({
+                currentlySelectedModel: selectedModel
+            })
+
+
+        })
         
     },
+
+   componentWillUnmount: function(){
+    Backbone.Events.off()
+   },
 
    componentWillUnmount: function() {
         var self = this
@@ -571,8 +630,12 @@ var NearbyView = React.createClass ({
     },
 
     _allRequestsComponents: function (requestObj,i){
-        return <Request changer={this._changeImage} update={this._updater} requestData={requestObj} userInbox={this.props.userInbox} key={i}/>
-
+        var isSelectedVal = false
+        if( requestObj.id === this.state.currentlySelectedModel.id ){ 
+            isSelectedVal = true 
+            console.log('FROM <NearbyView> , isSelected', requestObj)
+        }
+        return <Request isSelected={isSelectedVal} changer={this._changeImage} update={this._updater} requestData={requestObj} userInbox={this.props.userInbox} key={i} keyNumber={i}/>
     },
 
     imagePreview:'',
@@ -908,7 +971,9 @@ var Request = React.createClass ({
         
         return(
             <div className='nearbyRequest'>
+                {this.props.isSelected ? <h3>Clicked Target!</h3> : ""}
                 <div className='part1'>
+                    <p>Request #{(this.props.keyNumber) +1}</p>
                     <p>User: {this.props.requestData.get('requestor_email')}
                     </p><br/>
                     <p>Picture Objective: {this.props.requestData.get('content')}</p>

@@ -194,7 +194,7 @@ br{
     }
     .text{
         background-color: $faded;
-        width: 837px;
+        width: 80%;
         margin: 0 auto;
     }
 //Splash----------->
@@ -222,7 +222,7 @@ br{
     }
     #welcome{
         background-color: $faded;
-        width:837px;
+        width:80%;
         margin: 0 auto;
 
     }
@@ -479,11 +479,46 @@ br{
 @media only screen and (max-width:860px){
 #logo{
   display:block;
-  width:100%
+  width:100%;
   }
 #descr{
   display:block;
   width:100%;
   }
+  #welcome{
+    width: 100%;
+  }
+  
+  
+
+  .container{
+
+        .text{
+            width: 80%;
+            #drag{
+                width:100%;
+            }
+        }
+        #map{
+            display: block;
+            width:100%;
+        }
+        .list{
+            display:block;
+            width:100%;
+        }
+        #makeRequest{
+            #descr{
+            margin: 0 auto;
+            width: 80%;
+            }
+        }
+            
+    }
+  .tabs{
+    width:60%;
+    margin:0 auto;
+  }
+
 
 }
