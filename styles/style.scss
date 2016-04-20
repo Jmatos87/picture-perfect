@@ -159,6 +159,15 @@ br{
     display: block;
     margin: 10px 0;
 }
+h3{
+    color:$bigFont;
+    
+}
+h5{
+    color:$bigFont;
+    font-size:20px;
+
+}
  .container {
 
     text-align: center;
@@ -477,91 +486,97 @@ br{
     }
 
 @media only screen and (max-width:860px){
-p{
-    font-size: 17px;
-}
-
-#logo{
-  display:block;
-  width:100%;
-  }
-#descr{
-  display:block;
-  width:100%;
-  }
-  #welcome{
-    width: 100%;
-  }
-  #pending{
-    .userRequests{
-        width:70%;
-        margin:10px auto
+    p{
+        font-size: 17px;
     }
-  }
-  #nearbyView{
-    .nearbyRequest:first-child{
-                margin-top: 20px;
-    }
-    .nearbyRequest{
-        
-        .part1{
-            display:block;
-            width: 100%;
-        }
-        .part2{
-            display:block;
-            width: 100%;
-            input{
-                width:80%;
-                margin-left:29%
 
-            }
-            p{
-                visibility: hidden;
-            }
-        }
-
-    }
-  }
-  
-  
-
-  .container{
-
-        .text{
-            width: 80%;
-            #drag{
-                width:100%;
-            }
-        }
-        #map{
-            display: block;
+    #logo{
+      display:block;
+      width:100%;
+      }
+    #descr{
+      display:block;
+      width:100%;
+      }
+      #welcome{
+        width: 100%;
+      }
+      #pending{
+        .userRequests{
             width:70%;
-            margin: 0 auto;
-            height:300px;
+            margin:10px auto
         }
-        .list{
-            display:block;
-            width:100%;
-
+      }
+      #nearbyView{
+        img{
+            height:300px
         }
-        #makeRequest{
-            #descr{
-            margin: 10px auto;
-            width: 80%;
-            }
+        .nearbyRequest:first-child{
+            margin-top: 20px;
         }
+        .nearbyRequest{
             
-    }
+            .part1{
+                display:block;
+                width: 100%;
+            }
+            .part2{
+                display:block;
+                width: 100%;
+                input{
+                    width:80%;
+                    margin-left:29%
 
-  .tabs{
-    width:60%;
-    margin:0 auto;
-  }
-  #navigation ul{
-    margin:0;
-    padding:0;
-  }
+                }
+                p{
+                    visibility: hidden;
+                }
+            }
+
+        }
+      }
+      
+      
+
+      .container{
+
+            .text{
+                width: 80%;
+                #drag{
+                    width:100%;
+                }
+            }
+            #map{
+                display: block;
+                width:70%;
+                margin: 0 auto;
+                height:300px;
+            }
+            .list{
+                display:block;
+                width:100%;
+
+            }
+            #makeRequest{
+                img{
+                    height:300px
+                }
+                #descr{
+                    margin: 10px auto;
+                    width: 80%;
+                }
+            }
+                
+        }
+
+      .tabs{
+        width:60%;
+        margin:0 auto;
+      }
+      #navigation ul{
+        margin:0;
+        padding:0;
+      }
 
 
 }

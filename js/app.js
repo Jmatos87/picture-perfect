@@ -971,7 +971,7 @@ var Request = React.createClass ({
         
         return(
             <div className='nearbyRequest'>
-                {this.props.isSelected ? <h3>Clicked Target!</h3> : ""}
+                {this.props.isSelected ? <h3>That's Me!</h3> : ""}
                 <div className='part1'>
                     <p>Request #{(this.props.keyNumber) +1}</p>
                     <p>User: {this.props.requestData.get('requestor_email')}
