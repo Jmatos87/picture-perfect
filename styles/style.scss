@@ -477,6 +477,10 @@ br{
     }
 
 @media only screen and (max-width:860px){
+p{
+    font-size: 17px;
+}
+
 #logo{
   display:block;
   width:100%;
@@ -487,6 +491,37 @@ br{
   }
   #welcome{
     width: 100%;
+  }
+  #pending{
+    .userRequests{
+        width:70%;
+        margin:10px auto
+    }
+  }
+  #nearbyView{
+    .nearbyRequest:first-child{
+                margin-top: 20px;
+    }
+    .nearbyRequest{
+        
+        .part1{
+            display:block;
+            width: 100%;
+        }
+        .part2{
+            display:block;
+            width: 100%;
+            input{
+                width:80%;
+                margin-left:29%
+
+            }
+            p{
+                visibility: hidden;
+            }
+        }
+
+    }
   }
   
   
@@ -501,23 +536,30 @@ br{
         }
         #map{
             display: block;
-            width:100%;
+            width:70%;
+            margin: 0 auto;
         }
         .list{
             display:block;
             width:100%;
+
         }
         #makeRequest{
             #descr{
-            margin: 0 auto;
+            margin: 10px auto;
             width: 80%;
             }
         }
             
     }
+
   .tabs{
     width:60%;
     margin:0 auto;
+  }
+  #navigation ul{
+    margin:0;
+    padding:0;
   }
 
 
