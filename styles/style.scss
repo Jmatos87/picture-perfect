@@ -2,7 +2,10 @@
 @import "../bower_components/typeplate-starter-kit/scss/_typeplate.scss";
 
 
-
+p+p {
+    text-indent: 0;
+    margin-top: 0;
+}
 /**
  * BOX-SIZING
  */
@@ -199,9 +202,9 @@ h6{
 
     #map{
         display:inline-block;
-        width: 50%;
+        width: 45%;
         height:400px;
-        margin: 0 auto;
+        margin: 10px;
         box-shadow: 5px 5px 2px 0px rgba(0,0,0,0.75);
     }
     .text>h1:first-child{
@@ -226,6 +229,7 @@ h6{
         h1{
             font-size:30px;
             color:$bigFont;
+            margin:0;
         }
     }
 //Dash----------->
@@ -310,9 +314,12 @@ h6{
 
     #makeRequest{
 
+        margin-top: 10px;
+
         h1{
             font-size: 30px;
             color:$bigFont;
+            margin:0
         }
         img{
             height:400px;
@@ -323,6 +330,8 @@ h6{
             display:inline-block;
             width: 50%;
             vertical-align: top;
+            margin-top: 5px;
+
         }
         ::-webkit-input-placeholder {
     color: black;
@@ -407,6 +416,10 @@ h6{
             .part1{
                 display:inline-block;
                 width:50%;
+                text-align: left;
+                p{
+                    margin:0;
+                }
 
             }
             .part2{
@@ -554,12 +567,43 @@ h6{
 
       .container{
 
+        #nearbyView{
             .text{
-                width: 80%;
-                #drag{
-                    width:100%;
+                h1{
+                    font-size: 15px;
+                }
+
+        }
+        }
+    
+        #pending{
+            .text{
+                h1{
+                    font-size: 15px;
+                }
+
+        }
+        }
+        #image{
+            .text{
+                h1{
+                    font-size: 15px;
+                }
+
+        }
+        }
+
+        
+
+            
+
+
+            #welcome{
+                h1{
+                    font-size: 30px
                 }
             }
+            
             #map{
                 display: block;
                 width:70%;
@@ -571,7 +615,22 @@ h6{
                 width:100%;
 
             }
+            
             #makeRequest{
+                h1{
+                    font-size: 15px;
+                }
+                 .text{
+                    width: 80%;
+                #drag{
+                    width:100%;
+                    h1{
+                    font-size: 15px;
+                    margin:0;
+                }
+                }
+            }
+
                 img{
                     height:300px
                 }
@@ -584,7 +643,7 @@ h6{
         }
 
       .tabs{
-        width:50%;
+        width:51%;
         margin:0 auto;
         height:77px;
         vertical-align: bottom;

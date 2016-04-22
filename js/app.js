@@ -238,7 +238,7 @@ var MapMakeRequest = React.createClass({
                           });
 
                         google.maps.event.addListener(marker, 'dragend', function(evt){
-                            document.getElementById('drag').innerHTML = '<h1>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(5) + ' Current Lng: ' + evt.latLng.lng().toFixed(5) + '</h1>'
+                            document.getElementById('drag').innerHTML = '<h1>Location acquired!</h1>'
                             self.props.lat(evt.latLng.lat().toFixed(5))
                             self.props.lng(evt.latLng.lng().toFixed(5))
 
@@ -289,6 +289,11 @@ var GoogleMap = React.createClass({
 
         var self = this
 
+        this.props.requestData.on('sync',function() {self.forceUpdate()})
+
+
+
+
             GoogleMapsLoader.load(function(google) {
 
 
@@ -304,7 +309,7 @@ var GoogleMap = React.createClass({
 
                      var options = {
                             center: myLatLng,
-                            zoom: 10
+                            zoom: 18
                     }
 
 
@@ -399,6 +404,13 @@ var GoogleMap = React.createClass({
     
             })
     },
+
+    componentWillUnmount: function() {
+        var self = this
+        this.props.requestData.off('sync')
+     
+    },
+
 
 
     render:function(){
