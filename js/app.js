@@ -125,14 +125,10 @@ var SplashPage = React.createClass({
                 <input placeholder="enter your e-mail" onChange={this._updateEmail} />
                 <input placeholder="enter your password" onChange={this._updatePassword} type="password" />
                 <input placeholder="enter your real name" onChange={this._updateName} />
-                 <div className='text'>
-                    <h1>First time users please fill out all 3 forms then hit the sign up button followed by the log in button </h1>
-                </div>
                 <div className="splashButtons" >
                     <button onClick={this._handleSignUp} >sign up</button>
                     <button onClick={this._handleLogIn} >log in</button>
                 </div>
-                
             </div>
             )
     }
